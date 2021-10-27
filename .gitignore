@@ -131,3 +131,6 @@ dmypy.json
 # my files
 data/
 wandb/
+models/
+test.py
+.idea/
