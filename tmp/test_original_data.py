@@ -1,14 +1,14 @@
+import os
 import h5py
 import matplotlib.pyplot as plt
 
-
-data_path = 'data/modelnet40_ply_hdf5_2048/train0.h5'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+data_path = os.path.join(BASE_DIR,
+                         '../data/modelnet40_ply_hdf5_2048/train0.h5')
 
 f = h5py.File(data_path, 'r')
 data = f['data'][:]
 label = f['label'][:]
-
-print(label)
 
 N = 120
 x = data[N, :, 0]
@@ -23,4 +23,5 @@ ax.set_xlabel('X Label')
 ax.set_ylabel('Y Label')
 ax.set_zlabel('Z Label')
 
+plt.title('Label: ' + str(label[N, 0]))
 plt.show()

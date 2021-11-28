@@ -1,9 +1,11 @@
+import os
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 
 
-data_path = 'data/CorsNet/train0.h5'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+data_path = os.path.join(BASE_DIR, '../data/CorsNet/train0.h5')
 f = h5py.File(data_path, 'r')
 
 src = f['source'][:]
