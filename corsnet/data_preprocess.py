@@ -53,7 +53,7 @@ for file in train_files + test_files:
         [temp_p[i, :, :] @ t_matrix[i, :, :].T for i in range(temp_p.shape[0])]
     )
     # Remove last column with ones
-    temp_p = temp_p[:, :-1]
+    temp_p = temp_p[:, :, :-1]
 
     with h5py.File(new_file, 'w') as f:
         src = f.create_dataset('source', data=src_p)
