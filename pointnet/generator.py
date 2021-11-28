@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-import utils
+import pointnet.utils as utils
 
 
 class Generator(tf.keras.utils.Sequence):
@@ -57,7 +57,7 @@ class Generator(tf.keras.utils.Sequence):
 
     @staticmethod
     def _jitter_point_cloud(batch_data, sigma=0.01, clip=0.05):
-        """ Randomly jitter points. jittering is per point.
+        """ Randomly jitter points, jittering is per point.
             Input:
               BxNx3 array, original batch of point clouds
             Return:
@@ -83,15 +83,17 @@ class Generator(tf.keras.utils.Sequence):
         file_idx = 0
         tmp_idx = index
 
-        # loop to determine file index
+        # Loop to determine file index
         while (
             file_idx < len(self.filenames) 
-            and self.file_sizes[self.filename_idxs[file_idx]] // self.batch_size <= tmp_idx
+            and (self.file_sizes[self.filename_idxs[file_idx]]
+                 // self.batch_size <= tmp_idx)
         ):
-            tmp_idx -= self.file_sizes[self.filename_idxs[file_idx]] // self.batch_size    
+            tmp_idx -= (self.file_sizes[self.filename_idxs[file_idx]]
+                        // self.batch_size)
             file_idx += 1
 
-        # if the file is already loaded, select slice,
+        # If the file is already loaded, select slice,
         # otherwise load new file and slice
         if self.last_file_idx != file_idx:
             file = self.filenames[self.filename_idxs[file_idx]]
