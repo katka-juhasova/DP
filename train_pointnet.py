@@ -3,9 +3,9 @@ import datetime
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.callbacks import ModelCheckpoint
-import utils
-import pointnet
-from generator import Generator
+import pointnet.utils as utils
+import pointnet.pointnet as pointnet
+from pointnet.generator import Generator
 import wandb
 from wandb.keras import WandbCallback
 
