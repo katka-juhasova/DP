@@ -64,8 +64,7 @@ def tnet(inputs, num_features, regularize=False, name=None):
     return layers.Dot(axes=(2, 1), name=name)([inputs, feat_t])
 
 
-def get_model(num_points=NUM_POINTS, num_classes=NUM_CLASSES,
-              name="pointnet", weights=None):
+def get_model(num_points=NUM_POINTS, num_classes=NUM_CLASSES, name="pointnet"):
 
     inputs = keras.Input(shape=(num_points, 3), name=name + "_input")
 
@@ -83,9 +82,5 @@ def get_model(num_points=NUM_POINTS, num_classes=NUM_CLASSES,
     x = layers.Dropout(0.3)(x)
 
     outputs = layers.Dense(num_classes, activation="softmax")(x)
-    model = keras.Model(inputs=inputs, outputs=outputs, name=name)
 
-    if weights:
-        model.load_weights(weights)
-
-    return model
+    return keras.Model(inputs=inputs, outputs=outputs, name=name)
