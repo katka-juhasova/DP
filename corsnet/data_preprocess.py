@@ -33,12 +33,20 @@ for file in train_files + test_files:
 
     data, _ = utils.load_h5(file)
     src_p = data[:, :NUM_POINTS, :]
-    temp_p = data[:, NUM_POINTS:, :]
+    temp_p = data[:, :NUM_POINTS, :]
 
-    # Random rotation
-    r = R.random(data.shape[0]).as_matrix()
-    # Random translation
-    t = np.random.randn(data.shape[0], 3, 1)
+    # TODO: build temp_p with second half of the original point cloud
+    # temp_p = data[:, NUM_POINTS:, :]
+
+    # Random rotation from range [0, 45] degrees around arbitrarily chosen axis
+    axis = np.random.choice(['x', 'y', 'z'], data.shape[0])
+    degree = np.random.uniform(0., 90., data.shape[0])
+    r = np.array(
+        [R.from_euler(axis[i], degree[i], degrees=True).as_matrix()
+         for i in range(data.shape[0])]
+    )
+    # Random translation from range [0, 0.8]
+    t = np.random.uniform(0., 0.8, (data.shape[0], 3, 1))
     # Last row for transformation matrix
     last_row = np.array([0., 0., 0., 1.])
     last_row = np.tile(last_row, (data.shape[0], 1, 1))
