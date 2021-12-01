@@ -65,6 +65,7 @@ test_generator = Generator(test_files, num_point=NUM_POINTS,
 timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
 checkpoint_dir = os.path.join(BASE_DIR, 'models',
                               timestamp + "_%s" % wandb.run.name)
+os.makedirs(checkpoint_dir, exist_ok=True)
 checkpoint_callback = ModelCheckpoint(
     filepath=os.path.join(
         checkpoint_dir,
