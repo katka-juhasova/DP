@@ -1,22 +1,33 @@
+import os
+import sys
 import numpy as np
 import tensorflow as tf
-import corsnet.utils as utils
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(BASE_DIR)
+import corsnet_utils as utils
 
 
 class Generator(tf.keras.utils.Sequence):
-    def __init__(self, filenames, batch_size=32):
+    def __init__(self, filenames, batch_size=32, jitter=True,
+                 shuffle=True, shuffle_points=True):
+        self.filenames = filenames
+        self.batch_size = batch_size
+        self.jitter = jitter
+        self.shuffle = shuffle
+        self.shuffle_points = shuffle_points
+
         self.src = list()
         self.temp = list()
         self.t_matrix = list()
-        self.filenames = filenames
-        self.filename_idxs = self._get_shuffled_idxs()
+        self.filename_idxs = self._get_idxs()
         self.file_sizes = self._get_file_sizes()
         self.last_file_idx = -1
-        self.batch_size = batch_size
 
-    def _get_shuffled_idxs(self):
+    def _get_idxs(self):
         filename_idxs = np.arange(0, len(self.filenames))
-        np.random.shuffle(filename_idxs)
+
+        if self.shuffle:
+            np.random.shuffle(filename_idxs)
 
         return filename_idxs
 
@@ -85,22 +96,26 @@ class Generator(tf.keras.utils.Sequence):
         if self.last_file_idx != file_idx:
             file = self.filenames[self.filename_idxs[file_idx]]
             self.src, self.temp, self.t_matrix = utils.load_h5(file)
-            self.src, self.temp, self.t_matrix, _ = utils.shuffle_data(
-                self.src, self.temp, self.t_matrix)
+
+            if self.shuffle:
+                self.src, self.temp, self.t_matrix, _ = utils.shuffle_data(
+                    self.src, self.temp, self.t_matrix)
 
             self.last_file_idx = file_idx
 
         start_idx = tmp_idx * self.batch_size
         end_idx = start_idx + self.batch_size
+        batch_src = self.src[start_idx:end_idx, :, :]
+        batch_temp = self.temp[start_idx:end_idx, :, :]
         batch_t_matrix = self.t_matrix[start_idx:end_idx, :, :]
 
-        batch_src = self.src[start_idx:end_idx, :, :]
-        batch_src = self._jitter_point_cloud(batch_src)
-        batch_src = self._shuffle_point_cloud(batch_src)
+        if self.jitter:
+            batch_src = self._jitter_point_cloud(batch_src)
+            batch_temp = self._jitter_point_cloud(batch_temp)
 
-        batch_temp = self.temp[start_idx:end_idx, :, :]
-        batch_temp = self._jitter_point_cloud(batch_temp)
-        batch_temp = self._shuffle_point_cloud(batch_temp)
+        if self.shuffle_points:
+            batch_src = self._shuffle_point_cloud(batch_src)
+            batch_temp = self._shuffle_point_cloud(batch_temp)
 
         # Returns [p_src, p_tmp], g_gt
         return [batch_src, batch_temp], batch_t_matrix

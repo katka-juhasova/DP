@@ -32,17 +32,8 @@ class SVDLayer(tf.keras.layers.Layer):
 
         # Rotation
         r_est = tf.matmul(v, tf.transpose(u, perm=[0, 2, 1]))
-
-        # TODO: implement handling of the sign problem
-        # # handle svd sign problem
-        # #  https://medium.com/machine-learning-world/linear-algebra-points-matching-with-svd-in-3d-space-2553173e8fed
-        # # Special reflection case
-        # if tf.less(tf.linalg.det(r_est), 0.):
-        #     slice1 = v[:, :, :2]
-        #     slice2 = tf.scalar_mul(-1.0, v[:, :, 2])
-        #     slice2 = tf.expand_dims(slice2, axis=-1)
-        #     v = tf.concat([slice1, slice2], axis=-1)
-        #     r_est = tf.matmul(v, tf.transpose(u, perm=[0, 2, 1]))
+        # NOTE: no need to handle special reflection case,
+        # since we don't support mirror transformation
 
         # Translation
         t_est = - tf.matmul(r_est, tf.transpose(src_centroid, perm=[0, 2, 1]))
@@ -60,7 +51,8 @@ class SVDLayer(tf.keras.layers.Layer):
         return g_est
 
 
-def get_model(num_points=NUM_POINTS, pointnet_weights=None, name='corsnet'):
+def get_model(num_points=NUM_POINTS, pointnet_weights=None,
+              pointnet_trainable=False, name='corsnet'):
     # Source PointNet
     src_pointnet = pointnet.get_model(num_points=num_points,
                                       name='src_pointnet')
@@ -81,10 +73,15 @@ def get_model(num_points=NUM_POINTS, pointnet_weights=None, name='corsnet'):
     input_temp = temp_pointnet.get_layer(input_temp_layer).output
     glob_feat_temp = temp_pointnet.get_layer(glob_feat_temp_layer).output
 
+    # TODO: add assert that if pointnet_trainable is False, pointnet_weights
+    #  needs to be specified
+
     # Add load weights to PointNet models and set trainable=False
     if pointnet_weights:
         src_pointnet.load_weights(pointnet_weights)
         temp_pointnet.load_weights(pointnet_weights)
+
+    if not pointnet_trainable:
         src_pointnet.trainable = False
         temp_pointnet.trainable = False
 
@@ -103,6 +100,15 @@ def get_model(num_points=NUM_POINTS, pointnet_weights=None, name='corsnet'):
 
     return keras.Model(inputs=[input_src, input_temp], outputs=g_est,
                        name=name)
+
+
+# Function for callback for modifying the learning rate after certain epochs
+# NOTE: to be exact, it should be 74, 149 and 199
+def lr_scheduler(epoch, lr):
+    if epoch in (75, 150, 200):
+        return tf.divide(lr, 10.)
+    else:
+        return lr
 
 
 if __name__ == '__main__':
