@@ -5,21 +5,25 @@ import pointnet.utils as utils
 
 class Generator(tf.keras.utils.Sequence):
     def __init__(self, filenames, num_point=1024, batch_size=32,
-                 jitter=True, rotate=True):
-        self.data = list()
-        self.labels = list()
+                 jitter=True, rotate=True, shuffle=True):
         self.filenames = filenames
-        self.filename_idxs = self._get_shuffled_idxs()
-        self.file_sizes = self._get_file_sizes()
-        self.last_file_idx = -1
         self.num_point = num_point
         self.batch_size = batch_size
         self.jitter = jitter
         self.rotate = rotate
+        self.shuffle = shuffle
 
-    def _get_shuffled_idxs(self):
+        self.data = list()
+        self.labels = list()
+        self.filename_idxs = self._get_idxs()
+        self.file_sizes = self._get_file_sizes()
+        self.last_file_idx = -1
+
+    def _get_idxs(self):
         filename_idxs = np.arange(0, len(self.filenames))
-        np.random.shuffle(filename_idxs)
+
+        if self.shuffle:
+            np.random.shuffle(filename_idxs)
 
         return filename_idxs
     
@@ -99,8 +103,10 @@ class Generator(tf.keras.utils.Sequence):
             file = self.filenames[self.filename_idxs[file_idx]]
             self.data, self.labels = utils.load_h5(file)
             self.data = self.data[:, 0:self.num_point, :]
-            self.data, self.labels, _ = utils.shuffle_data(self.data,
-                                                           self.labels)
+
+            if self.shuffle:
+                self.data, self.labels, _ = utils.shuffle_data(self.data,
+                                                               self.labels)
             self.labels = np.squeeze(self.labels)
 
             self.last_file_idx = file_idx

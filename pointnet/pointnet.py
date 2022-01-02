@@ -3,8 +3,8 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 
-NUM_POINTS = 1024
-NUM_CLASSES = 40
+NUM_POINT = 1024
+NUM_CLASS = 40
 BATCH_SIZE = 32
 
 
@@ -64,9 +64,9 @@ def tnet(inputs, num_features, regularize=False, name=None):
     return layers.Dot(axes=(2, 1), name=name)([inputs, feat_t])
 
 
-def get_model(num_points=NUM_POINTS, num_classes=NUM_CLASSES, name="pointnet"):
+def get_model(num_point=NUM_POINT, num_class=NUM_CLASS, name="pointnet"):
 
-    inputs = keras.Input(shape=(num_points, 3), name=name + "_input")
+    inputs = keras.Input(shape=(num_point, 3), name=name + "_input")
 
     x = tnet(inputs, 3, regularize=False)
     x = conv1d_bn(x, 64)
@@ -81,6 +81,6 @@ def get_model(num_points=NUM_POINTS, num_classes=NUM_CLASSES, name="pointnet"):
     x = dense_bn(x, 256)
     x = layers.Dropout(0.3)(x)
 
-    outputs = layers.Dense(num_classes, activation="softmax")(x)
+    outputs = layers.Dense(num_class, activation="softmax")(x)
 
     return keras.Model(inputs=inputs, outputs=outputs, name=name)
