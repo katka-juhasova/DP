@@ -3,8 +3,9 @@ import h5py
 import matplotlib.pyplot as plt
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-data_path = os.path.join(BASE_DIR,
-                         '../data/modelnet40_ply_hdf5_2048/train0.h5')
+data_path = os.path.join(BASE_DIR, '..', 'data',
+                         'modelnet40_ply_hdf5_2048',
+                         'train0.h5')
 
 f = h5py.File(data_path, 'r')
 data = f['data'][:]

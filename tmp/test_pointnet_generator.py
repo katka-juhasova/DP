@@ -1,10 +1,13 @@
 import os
-import pointnet.utils as utils
-from pointnet.generator import Generator
-
-
+import sys
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE_DIR, '../data/modelnet40_ply_hdf5_2048')
+sys.path.append(BASE_DIR)
+sys.path.append(os.path.join(BASE_DIR, '..', 'pointnet'))
+import pointnet_utils as utils
+from pointnet_generator import Generator
+
+
+DATA_DIR = os.path.join(BASE_DIR, '..', 'data', 'modelnet40_ply_hdf5_2048')
 TRAIN_FILES = os.path.join(DATA_DIR, 'train_files.txt')
 TEST_FILES = os.path.join(DATA_DIR, 'test_files.txt')
 
