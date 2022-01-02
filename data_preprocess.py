@@ -18,7 +18,7 @@ parser.add_argument('--same_points', type=bool, default=False,
                     If True both point clouds are consist of the same points \
                     [default: False]')
 parser.add_argument('--num_point', type=int, default=1024,
-                    help='Point number [256/512/1024/2048] [default: 1024]')
+                    help='Point number [256/512/1024] [default: 1024]')
 parser.add_argument('--r_min', type=float, default=0.0,
                     help='Lower limit for rotation in degrees [default: 0.0]')
 parser.add_argument('--r_max', type=float, default=45.0,

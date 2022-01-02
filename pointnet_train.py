@@ -1,3 +1,4 @@
+import argparse
 import os
 import datetime
 import tensorflow as tf
@@ -12,14 +13,27 @@ from wandb.keras import WandbCallback
 physical_devices = tf.config.list_physical_devices('GPU')
 tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
-NUM_POINTS = 1024
-NUM_CLASSES = 40
-BATCH_SIZE = 32
-EPOCHS = 250
-LEARNING_RATE = 0.001
+parser = argparse.ArgumentParser()
+parser.add_argument('--num_point', type=int, default=1024,
+                    help='Point number [256/512/1024/2048] [default: 1024]')
+parser.add_argument('--batch_size', type=int, default=32,
+                    help='Batch size during training [default: 32]')
+parser.add_argument('--learning_rate', type=float, default=0.001,
+                    help='Initial learning rate [default: 0.001]')
+parser.add_argument('--epochs', type=int, default=250,
+                    help='Epoch to run [default: 250]')
+args = parser.parse_args()
+
+
+NUM_POINT = args.num_point
+NUM_CLASS = 40
+BATCH_SIZE = args.batch_size
+LEARNING_RATE = args.learning_rate
+EPOCHS = args.epochs
+
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE_DIR, 'data/modelnet40_ply_hdf5_2048')
+DATA_DIR = os.path.join(BASE_DIR, 'data', 'modelnet40_ply_hdf5_2048')
 TRAIN_FILES = os.path.join(DATA_DIR, 'train_files.txt')
 TEST_FILES = os.path.join(DATA_DIR, 'test_files.txt')
 
@@ -27,7 +41,7 @@ train_files = utils.get_data_files(TRAIN_FILES)
 test_files = utils.get_data_files(TEST_FILES)
 
 # Load model
-model = pointnet.get_model(num_points=NUM_POINTS, num_classes=NUM_CLASSES)
+model = pointnet.get_model(num_point=NUM_POINT, num_class=NUM_CLASS)
 # model.summary()
 
 model.compile(
@@ -39,8 +53,8 @@ model.compile(
 # Train with WandB callbacks
 wandb_config = {
     'model': 'PointNet',
-    'num_points': NUM_POINTS,
-    'num_classes': NUM_CLASSES,
+    'num_point': NUM_POINT,
+    'num_class': NUM_CLASS,
     'batch_size': BATCH_SIZE,
     'optimizer': 'Adam',
     'learning_rate': LEARNING_RATE
@@ -56,9 +70,9 @@ run = wandb.init(
 # Set the run name to the run ID
 wandb.run.name = 'PointNet-' + wandb.run.id
 
-train_generator = Generator(train_files, num_point=NUM_POINTS,
+train_generator = Generator(train_files, num_point=NUM_POINT,
                             batch_size=BATCH_SIZE)
-test_generator = Generator(test_files, num_point=NUM_POINTS,
+test_generator = Generator(test_files, num_point=NUM_POINT,
                            batch_size=BATCH_SIZE)
 
 # Model checkpoint callback

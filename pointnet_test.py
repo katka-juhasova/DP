@@ -7,8 +7,8 @@ from pointnet.generator import Generator
 import matplotlib.pyplot as plt
 
 
-NUM_POINTS = 1024
-NUM_CLASSES = 40
+NUM_POINT = 1024
+NUM_CLASS = 40
 BATCH_SIZE = 16
 LEARNING_RATE = 0.001
 
@@ -25,11 +25,11 @@ with open(shapes_file) as f:
     shapes = f.read().splitlines()
 
 # Test data generator
-test_generator = Generator(test_files, num_point=NUM_POINTS,
+test_generator = Generator(test_files, num_point=NUM_POINT,
                            batch_size=BATCH_SIZE)
 
 # Load model
-model = pointnet.get_model(num_points=NUM_POINTS, num_classes=NUM_CLASSES)
+model = pointnet.get_model(num_point=NUM_POINT, num_class=NUM_CLASS)
 
 # Load weights
 weights_path = os.path.join(
