@@ -1,14 +1,19 @@
 import argparse
 import os
+import sys
 import datetime
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.callbacks import ModelCheckpoint
-import pointnet.utils as utils
-import pointnet.pointnet as pointnet
-from pointnet.generator import Generator
 import wandb
 from wandb.keras import WandbCallback
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(BASE_DIR)
+sys.path.append(os.path.join(BASE_DIR, 'pointnet'))
+import pointnet_utils as utils
+import pointnet_model as pointnet
+from pointnet_generator import Generator
+
 
 physical_devices = tf.config.list_physical_devices('GPU')
 tf.config.experimental.set_memory_growth(physical_devices[0], True)
@@ -32,7 +37,6 @@ LEARNING_RATE = args.learning_rate
 EPOCHS = args.epochs
 
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, 'data', 'modelnet40_ply_hdf5_2048')
 TRAIN_FILES = os.path.join(DATA_DIR, 'train_files.txt')
 TEST_FILES = os.path.join(DATA_DIR, 'test_files.txt')

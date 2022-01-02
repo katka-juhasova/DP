@@ -1,6 +1,10 @@
+import os
+import sys
 import numpy as np
 import tensorflow as tf
-import pointnet.utils as utils
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(BASE_DIR)
+import pointnet_utils as utils
 
 
 class Generator(tf.keras.utils.Sequence):
