@@ -1,14 +1,17 @@
 import argparse
 import os
-import tensorflow as tf
-import pointnet.utils as utils
-import pointnet.pointnet as pointnet
-from pointnet.generator import Generator
-import matplotlib.pyplot as plt
+import sys
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(BASE_DIR)
+sys.path.append(os.path.join(BASE_DIR, 'pointnet'))
+import pointnet_utils as utils
+import pointnet_model as pointnet
+from pointnet_generator import Generator
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--weights', type=str, help='Trained weights path')
+parser.add_argument('--weights', type=str, required=True,
+                    help='Trained weights path')
 parser.add_argument('--num_point', type=int, default=1024,
                     help='Point number [256/512/1024/2048] [default: 1024]')
 parser.add_argument('--batch_size', type=int, default=32,
@@ -22,7 +25,6 @@ NUM_CLASS = 40
 BATCH_SIZE = args.batch_size
 
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, 'data', 'modelnet40_ply_hdf5_2048')
 TEST_FILES = os.path.join(DATA_DIR, 'test_files.txt')
 
@@ -40,7 +42,7 @@ test_generator = Generator(test_files, num_point=NUM_POINT,
 
 model_name = WEIGHTS.split('/')[0].split('_')[-1]
 
-# Load weights nad model
+# Load weights and model
 # 2021-10-27_07:38:35_PointNet-1zy4zmyd/
 # model.epoch239-loss2.17-acc0.95-val_loss2.63-val_acc0.87.h5
 weights_path = os.path.join(BASE_DIR, 'models', WEIGHTS)

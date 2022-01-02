@@ -1,10 +1,14 @@
-import os
 import argparse
+import os
+import sys
 import shutil
-import pointnet.utils as utils
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 import h5py
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(BASE_DIR)
+sys.path.append(os.path.join(BASE_DIR, 'pointnet'))
+import pointnet_utils as utils
 
 
 parser = argparse.ArgumentParser()
@@ -40,7 +44,6 @@ R_MAX = args.r_max
 T_MIN = args.t_min
 T_MAX = args.t_max
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, 'data', SRC_DIR)
 TRAIN_FILES = os.path.join(DATA_DIR, 'train_files.txt')
 TEST_FILES = os.path.join(DATA_DIR, 'test_files.txt')

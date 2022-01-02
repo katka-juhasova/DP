@@ -1,11 +1,15 @@
 import os
+import sys
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
-import pointnet.pointnet as pointnet
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(BASE_DIR)
+sys.path.append(os.path.join(BASE_DIR, '..', 'pointnet'))
+import pointnet_model as pointnet
 
 
-NUM_POINTS = 1024
+NUM_POINT = 1024
 
 
 class SVDLayer(tf.keras.layers.Layer):
@@ -51,10 +55,10 @@ class SVDLayer(tf.keras.layers.Layer):
         return g_est
 
 
-def get_model(num_points=NUM_POINTS, pointnet_weights=None,
-              pointnet_trainable=False, name='corsnet'):
+def get_model(num_point=NUM_POINT, pointnet_weights=None,
+              pointnet_trainable=True, name='corsnet'):
     # Source PointNet
-    src_pointnet = pointnet.get_model(num_points=num_points,
+    src_pointnet = pointnet.get_model(num_point=num_point,
                                       name='src_pointnet')
 
     input_src_layer = 'src_pointnet_input'
@@ -65,7 +69,7 @@ def get_model(num_points=NUM_POINTS, pointnet_weights=None,
     glob_feat_src = src_pointnet.get_layer(glob_feat_src_layer).output
 
     # Template PointNet
-    temp_pointnet = pointnet.get_model(num_points=num_points,
+    temp_pointnet = pointnet.get_model(num_point=num_point,
                                        name='temp_pointnet')
 
     input_temp_layer = 'temp_pointnet_input'
@@ -73,8 +77,8 @@ def get_model(num_points=NUM_POINTS, pointnet_weights=None,
     input_temp = temp_pointnet.get_layer(input_temp_layer).output
     glob_feat_temp = temp_pointnet.get_layer(glob_feat_temp_layer).output
 
-    # TODO: add assert that if pointnet_trainable is False, pointnet_weights
-    #  needs to be specified
+    # Either pointnet_trainable or pointnet_weights has to be not None
+    assert pointnet_trainable or pointnet_weights
 
     # Add load weights to PointNet models and set trainable=False
     if pointnet_weights:
@@ -102,22 +106,10 @@ def get_model(num_points=NUM_POINTS, pointnet_weights=None,
                        name=name)
 
 
-# Function for callback for modifying the learning rate after certain epochs
+# Function for callback for modifying the learning rate
 # NOTE: to be exact, it should be 74, 149 and 199
 def lr_scheduler(epoch, lr):
     if epoch in (75, 150, 200):
         return tf.divide(lr, 10.)
     else:
         return lr
-
-
-if __name__ == '__main__':
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    weights = os.path.join(
-        BASE_DIR,
-        (r"../models/2021-10-27_07:38:35_PointNet-1zy4zmyd/"
-         r"model.epoch239-loss2.17-acc0.95-val_loss2.63-val_acc0.87.h5")
-    )
-
-    model = get_model(num_points=NUM_POINTS, pointnet_weights=weights)
-    model.summary()

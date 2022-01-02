@@ -3,9 +3,9 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 
+
 NUM_POINT = 1024
 NUM_CLASS = 40
-BATCH_SIZE = 32
 
 
 def conv1d_bn(x, filters, name=None):

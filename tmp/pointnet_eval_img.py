@@ -12,7 +12,8 @@ from pointnet_generator import Generator
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--weights', type=str, help='Trained weights path')
+parser.add_argument('--weights', type=str, required=True,
+                    help='Trained weights path')
 parser.add_argument('--num_point', type=int, default=1024,
                     help='Point number [256/512/1024/2048] [default: 1024]')
 args = parser.parse_args()
