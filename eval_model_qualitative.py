@@ -1,49 +1,43 @@
 import argparse
 import os
-import sys
 import numpy as np
 import matplotlib.pyplot as plt
+import corsnet.model as corsnet
+from corsnet.generator import Generator
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(BASE_DIR)
-sys.path.append(os.path.join(BASE_DIR, '..', 'corsnet'))
-import corsnet_utils as utils
-import corsnet_model as corsnet
-from corsnet_generator import Generator
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--data_dir', type=str, required=True,
+                    help='Data dir containing train & test dataset')
 parser.add_argument('--weights', type=str, required=True,
                     help='Trained weights path')
 parser.add_argument('--num_point', type=int, default=1024,
                     help='Point number [256/512/1024] [default: 1024]')
+parser.add_argument('--batch_size', type=int, default=128,
+                    help='Batch size for evaluation [default: 128]')
 args = parser.parse_args()
 
-WEIGHTS = args.weights
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, args.data_dir)
+WEIGHTS = os.path.join(BASE_DIR, args.weights)
 NUM_POINT = args.num_point
-NUM_CLASS = 40
-BATCH_SIZE = 128
+BATCH_SIZE = args.batch_size
 
-DATA_DIR = os.path.join(BASE_DIR, '..', 'data', 'CorsNet_eval')
-TEST_FILES = os.path.join(DATA_DIR, 'test_files.txt')
 
-test_files = utils.get_data_files(TEST_FILES)
-
+model_name = os.path.basename(os.path.dirname(WEIGHTS))
+model_name = '_'.join(model_name.split('_')[2:])
+test_file = os.path.join(DATA_DIR, 'test_dataset.h5')
 # Test data generator
-test_generator = Generator(test_files,
+test_generator = Generator(test_file,
                            batch_size=BATCH_SIZE,
                            jitter=False,
                            shuffle=False,
                            shuffle_points=False)
 
 # Load model and weights
-# CorsNet-23rj48af-v3
-# 2021-12-15_09:56:37_CorsNet-23rj48af/
-# model.epoch191-loss1.02-acc0.96-mse0.00
-# -val_loss1.03-val_acc0.97-val_mse0.00.h5)
-weights_path = os.path.join(BASE_DIR, '..', 'models', WEIGHTS)
-
 model = corsnet.get_model(num_point=NUM_POINT)
-model.load_weights(weights_path)
+model.load_weights(WEIGHTS)
 
 # Qualitative evaluation
 [src, temp], t_matrix = test_generator.__getitem__(0)
@@ -103,6 +97,7 @@ plt.tight_layout()
 # plt.show()
 
 # Save the figure
-model_name = WEIGHTS.split('/')[0].split('_')[-1]
-fig_path = os.path.join(BASE_DIR, '..', 'results', model_name + '.png')
+fig_path = os.path.join(BASE_DIR, 'results', model_name + '.png')
 plt.savefig(fig_path)
+
+print('Image successfully saved to {}'.format(fig_path))

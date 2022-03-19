@@ -1,12 +1,8 @@
 import argparse
 import os
-import sys
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(BASE_DIR)
-sys.path.append(os.path.join(BASE_DIR, 'pointnet'))
-import pointnet_utils as utils
-import pointnet_model as pointnet
-from pointnet_generator import Generator
+import v001.pointnet.pointnet_utils as utils
+import v001.pointnet.pointnet_model as pointnet
+from v001.pointnet.pointnet_generator import Generator
 
 
 parser = argparse.ArgumentParser()
@@ -23,9 +19,10 @@ WEIGHTS = args.weights
 NUM_POINT = args.num_point
 NUM_CLASS = 40
 BATCH_SIZE = args.batch_size
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-DATA_DIR = os.path.join(BASE_DIR, 'data', 'modelnet40_ply_hdf5_2048')
+DATA_DIR = os.path.join(BASE_DIR, 'data', 'ModelNet40')
 TEST_FILES = os.path.join(DATA_DIR, 'test_files.txt')
 
 test_files = utils.get_data_files(TEST_FILES)

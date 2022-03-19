@@ -1,20 +1,16 @@
 import argparse
 import os
-import sys
 import shutil
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 import h5py
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(BASE_DIR)
-sys.path.append(os.path.join(BASE_DIR, 'pointnet'))
-import pointnet_utils as utils
+import v001.pointnet.pointnet_utils as utils
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--src_dir', type=str, default='modelnet40_ply_hdf5_2048',
+parser.add_argument('--src_dir', type=str, default='ModelNet40',
                     help='Src dir with data to preprocess \
-                    [default: modelnet40_ply_hdf5_2048]')
+                    [default: ModelNet40]')
 parser.add_argument('--dest_dir', type=str, default='CorsNet',
                     help='Dest dir for preprocessed data [default: CorsNet]')
 parser.add_argument('--same_points', type=bool, default=False,
@@ -43,6 +39,7 @@ R_MIN = args.r_min
 R_MAX = args.r_max
 T_MIN = args.t_min
 T_MAX = args.t_max
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 DATA_DIR = os.path.join(BASE_DIR, 'data', SRC_DIR)
 TRAIN_FILES = os.path.join(DATA_DIR, 'train_files.txt')
@@ -52,6 +49,8 @@ NEW_DATA_DIR = os.path.join(BASE_DIR, 'data', DEST_DIR)
 NEW_TRAIN_FILES = os.path.join(NEW_DATA_DIR, 'train_files.txt')
 NEW_TEST_FILES = os.path.join(NEW_DATA_DIR, 'test_files.txt')
 
+os.makedirs(NEW_DATA_DIR, exist_ok=True)
+
 # Copy lists of train and test files
 shutil.copy(TRAIN_FILES, NEW_TRAIN_FILES)
 shutil.copy(TEST_FILES, NEW_TEST_FILES)
@@ -59,7 +58,6 @@ shutil.copy(TEST_FILES, NEW_TEST_FILES)
 # Read the lists of train and test files
 train_files = utils.get_data_files(TRAIN_FILES)
 test_files = utils.get_data_files(TEST_FILES)
-
 
 # ModelNet40 dataset shape is [n, 2048, 3]
 for file in train_files + test_files:
@@ -77,7 +75,6 @@ for file in train_files + test_files:
         src_p = data[:, :NUM_POINT, :]
         temp_p = data[:, NUM_POINT:2 * NUM_POINT, :]
 
-    # TODO: temp points normalizing into unit box at the origin [0,1]^3
     # Random rotation from range [R_MIN, R_MAX] degrees
     r_degrees = np.random.uniform(R_MIN, R_MAX, size=(data.shape[0], 3))
     r = np.array(

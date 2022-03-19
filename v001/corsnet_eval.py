@@ -1,14 +1,10 @@
 import argparse
 import os
-import sys
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(BASE_DIR)
-sys.path.append(os.path.join(BASE_DIR, 'corsnet'))
-import corsnet_utils as utils
-import corsnet_model as corsnet
-from corsnet_generator import Generator
-from corsnet_loss1 import CorsNetLoss1
-import metrics
+import v001.corsnet.corsnet_utils as utils
+import v001.corsnet.corsnet_model as corsnet
+from v001.corsnet.corsnet_generator import Generator
+from v001.corsnet.corsnet_losses import CorsNetLoss1
+import v001.corsnet.corsnet_metrics as metrics
 
 
 parser = argparse.ArgumentParser()
@@ -24,6 +20,7 @@ args = parser.parse_args()
 WEIGHTS = args.weights
 NUM_POINT = args.num_point
 BATCH_SIZE = args.batch_size
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 # CorsNet-cd5u6xe5-v5
@@ -68,7 +65,7 @@ model_name = WEIGHTS.split('_')[-1].split('/')[0].split('_')[-1]
 
 # Load model and weights
 # CorsNet-23rj48af-v3
-weights_path = os.path.join(BASE_DIR, 'models', WEIGHTS)
+weights_path = os.path.join(BASE_DIR, '../models', WEIGHTS)
 
 model = corsnet.get_model(num_point=NUM_POINT)
 model.load_weights(weights_path)

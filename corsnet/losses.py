@@ -1,8 +1,12 @@
-# https://github.com/hmgoforth/PointNetLK/blob/master/ptlk/pointlk.py#L43-L50
 import tensorflow as tf
 
 
+# https://github.com/hmgoforth/PointNetLK/blob/master/ptlk/pointlk.py#L43-L50
 class CorsNetLoss1(tf.keras.losses.Loss):
+    """
+    Implementation of Loss1 function from
+    https://ieeexplore.ieee.org/abstract/document/8978671.
+    """
     def __init__(self):
         super().__init__()
 

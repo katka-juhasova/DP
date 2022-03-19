@@ -132,5 +132,5 @@ dmypy.json
 data/
 wandb/
 models/
-pointnet/test.py
+v001/pointnet/test.py
 .idea/

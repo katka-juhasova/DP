@@ -1,15 +1,21 @@
-import os
-import sys
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(BASE_DIR)
-sys.path.append(os.path.join(BASE_DIR, '..', 'pointnet'))
-import pointnet_model as pointnet
 
 
 NUM_POINT = 1024
+
+
+def conv1d_bn(x, filters):
+    x = layers.Conv1D(filters, kernel_size=1, padding="valid")(x)
+    x = layers.BatchNormalization(momentum=0.9)(x)
+    return layers.Activation("relu")(x)
+
+
+def dense_bn(x, filters):
+    x = layers.Dense(filters)(x)
+    x = layers.BatchNormalization(momentum=0.9)(x)
+    return layers.Activation("relu")(x)
 
 
 class SVDLayer(tf.keras.layers.Layer):
@@ -55,49 +61,34 @@ class SVDLayer(tf.keras.layers.Layer):
         return g_est
 
 
-def get_model(num_point=NUM_POINT, pointnet_weights=None,
-              pointnet_trainable=True, name='corsnet'):
-    # Source PointNet
-    src_pointnet = pointnet.get_model(num_point=num_point,
-                                      name='src_pointnet')
+def get_model(num_point=NUM_POINT, name='corsnet'):
+    # Source PointNet (without T-Net)
+    input_src = keras.Input(shape=(num_point, 3))
+    x_src = conv1d_bn(input_src, 64)
+    loc_feat_src = conv1d_bn(x_src, 64)
+    x_src = conv1d_bn(loc_feat_src, 64)
+    x_src = conv1d_bn(x_src, 128)
+    x_src = conv1d_bn(x_src, 1024)
+    glob_feat_src = layers.GlobalMaxPooling1D()(x_src)
 
-    input_src_layer = 'src_pointnet_input'
-    loc_feat_src_layer = 'src_pointnet_local_features'
-    glob_feat_src_layer = 'src_pointnet_global_features'
-    input_src = src_pointnet.get_layer(input_src_layer).output
-    loc_feat_src = src_pointnet.get_layer(loc_feat_src_layer).output
-    glob_feat_src = src_pointnet.get_layer(glob_feat_src_layer).output
-
-    # Template PointNet
-    temp_pointnet = pointnet.get_model(num_point=num_point,
-                                       name='temp_pointnet')
-
-    input_temp_layer = 'temp_pointnet_input'
-    glob_feat_temp_layer = 'temp_pointnet_global_features'
-    input_temp = temp_pointnet.get_layer(input_temp_layer).output
-    glob_feat_temp = temp_pointnet.get_layer(glob_feat_temp_layer).output
-
-    # Either pointnet_trainable or pointnet_weights has to be not None
-    assert pointnet_trainable or pointnet_weights
-
-    # Add load weights to PointNet models and set trainable=False
-    if pointnet_weights:
-        src_pointnet.load_weights(pointnet_weights)
-        temp_pointnet.load_weights(pointnet_weights)
-
-    if not pointnet_trainable:
-        src_pointnet.trainable = False
-        temp_pointnet.trainable = False
+    # Template PointNet (without T-Net)
+    input_temp = keras.Input(shape=(num_point, 3))
+    x_temp = conv1d_bn(input_temp, 64)
+    loc_feat_temp = conv1d_bn(x_temp, 64)
+    x_temp = conv1d_bn(loc_feat_temp, 64)
+    x_temp = conv1d_bn(x_temp, 128)
+    x_temp = conv1d_bn(x_temp, 1024)
+    glob_feat_temp = layers.GlobalMaxPooling1D()(x_temp)
 
     # Correspondence estimation
     glob_feat_src = layers.RepeatVector(n=1024)(glob_feat_src)
     glob_feat_temp = layers.RepeatVector(n=1024)(glob_feat_temp)
 
     cors = layers.Concatenate()([loc_feat_src, glob_feat_temp, glob_feat_src])
-    cors = pointnet.conv1d_bn(cors, 512)
-    cors = pointnet.conv1d_bn(cors, 256)
-    cors = pointnet.conv1d_bn(cors, 128)
-    cors = pointnet.conv1d_bn(cors, 3)
+    cors = conv1d_bn(cors, 512)
+    cors = conv1d_bn(cors, 256)
+    cors = conv1d_bn(cors, 128)
+    cors = conv1d_bn(cors, 3)
 
     # SVD
     g_est = SVDLayer()([cors, input_src])

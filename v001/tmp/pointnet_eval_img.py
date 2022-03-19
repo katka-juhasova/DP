@@ -1,14 +1,10 @@
 import argparse
 import os
-import sys
 import tensorflow as tf
 import matplotlib.pyplot as plt
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(BASE_DIR)
-sys.path.append(os.path.join(BASE_DIR, '..', 'pointnet'))
-import pointnet_utils as utils
-import pointnet_model as pointnet
-from pointnet_generator import Generator
+import v001.pointnet.pointnet_utils as utils
+import v001.pointnet.pointnet_model as pointnet
+from v001.pointnet.pointnet_generator import Generator
 
 
 parser = argparse.ArgumentParser()
@@ -24,7 +20,8 @@ NUM_POINT = args.num_point
 NUM_CLASS = 40
 BATCH_SIZE = 2048
 
-DATA_DIR = os.path.join(BASE_DIR, '..', 'data', 'modelnet40_ply_hdf5_2048')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, '..', 'data', 'ModelNet40')
 TEST_FILES = os.path.join(DATA_DIR, 'test_files.txt')
 
 test_files = utils.get_data_files(TEST_FILES)
@@ -42,10 +39,8 @@ test_generator = Generator(test_files, num_point=NUM_POINT,
 # Load weights and model
 # 2021-10-27_07:38:35_PointNet-1zy4zmyd/
 # model.epoch239-loss2.17-acc0.95-val_loss2.63-val_acc0.87.h5
-weights_path = os.path.join(BASE_DIR, '..', 'models', WEIGHTS)
-
 model = pointnet.get_model(num_point=NUM_POINT, num_class=NUM_CLASS)
-model.load_weights(weights_path)
+model.load_weights(WEIGHTS)
 
 # Qualitative evaluation
 data, labels = test_generator.__getitem__(0)
@@ -99,6 +94,7 @@ plt.tight_layout()
 # plt.show()
 
 # Save the figure
-model_name = WEIGHTS.split('/')[0].split('_')[-1]
+model_name = os.path.basename(os.path.dirname(WEIGHTS))
+model_name = '_'.join(model_name.split('_')[2:])
 fig_path = os.path.join(BASE_DIR, '..', 'results', model_name + '.png')
 plt.savefig(fig_path)

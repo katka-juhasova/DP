@@ -1,6 +1,5 @@
 import argparse
 import os
-import sys
 import datetime
 import tensorflow as tf
 from tensorflow import keras
@@ -8,13 +7,10 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.python.framework.ops import disable_eager_execution
 import wandb
 from wandb.keras import WandbCallback
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(BASE_DIR)
-sys.path.append(os.path.join(BASE_DIR, 'corsnet'))
-import corsnet_utils as utils
-import corsnet_model as corsnet
-from corsnet_generator import Generator
-from corsnet_loss1 import CorsNetLoss1
+import v001.corsnet.corsnet_utils as utils
+import v001.corsnet.corsnet_model as corsnet
+from v001.corsnet.corsnet_generator import Generator
+from v001.corsnet.corsnet_losses import CorsNetLoss1
 
 
 physical_devices = tf.config.list_physical_devices('GPU')
@@ -72,6 +68,7 @@ R_MIN = args.r_min
 R_MAX = args.r_max
 T_MIN = args.t_min
 T_MAX = args.t_max
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 DATA_DIR = os.path.join(BASE_DIR, 'data', 'CorsNet')

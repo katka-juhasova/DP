@@ -2,7 +2,6 @@ import tensorflow as tf
 
 
 def rmse_t(y_true, y_pred):
-    """Calculates RMSE of translation."""
     y_true_t = y_true[:, :-1, -1]
     y_pred_t = y_pred[:, :-1, -1]
 
@@ -10,7 +9,6 @@ def rmse_t(y_true, y_pred):
 
 
 def rmse_r(y_true, y_pred):
-    """Calculates RMSE of rotation."""
     y_true_r = y_true[:, :-1, :-1]
     y_pred_r = y_pred[:, :-1, :-1]
 

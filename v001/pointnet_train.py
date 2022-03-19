@@ -1,18 +1,14 @@
 import argparse
 import os
-import sys
 import datetime
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.callbacks import ModelCheckpoint
 import wandb
 from wandb.keras import WandbCallback
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(BASE_DIR)
-sys.path.append(os.path.join(BASE_DIR, 'pointnet'))
-import pointnet_utils as utils
-import pointnet_model as pointnet
-from pointnet_generator import Generator
+from v001.pointnet import pointnet_utils as utils
+import v001.pointnet.pointnet_model as pointnet
+from v001.pointnet.pointnet_generator import Generator
 
 
 physical_devices = tf.config.list_physical_devices('GPU')
@@ -35,9 +31,10 @@ NUM_CLASS = 40
 BATCH_SIZE = args.batch_size
 LEARNING_RATE = args.learning_rate
 EPOCHS = args.epochs
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-DATA_DIR = os.path.join(BASE_DIR, 'data', 'modelnet40_ply_hdf5_2048')
+DATA_DIR = os.path.join(BASE_DIR, 'data', 'ModelNet40')
 TRAIN_FILES = os.path.join(DATA_DIR, 'train_files.txt')
 TEST_FILES = os.path.join(DATA_DIR, 'test_files.txt')
 

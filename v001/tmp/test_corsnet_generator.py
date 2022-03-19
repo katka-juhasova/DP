@@ -1,12 +1,9 @@
 import os
-import sys
+import v001.corsnet.corsnet_utils as utils
+from v001.corsnet.corsnet_generator import Generator
+
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(BASE_DIR)
-sys.path.append(os.path.join(BASE_DIR, '..', 'corsnet'))
-import corsnet_utils as utils
-from corsnet_generator import Generator
-
-
 DATA_DIR = os.path.join(BASE_DIR, '..', 'data', 'CorsNet')
 TRAIN_FILES = os.path.join(DATA_DIR, 'train_files.txt')
 TEST_FILES = os.path.join(DATA_DIR, 'test_files.txt')

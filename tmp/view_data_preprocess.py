@@ -6,7 +6,8 @@ from scipy.spatial.transform import Rotation as R
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-data_path = os.path.join(BASE_DIR, '..', 'data', 'CorsNet', 'train0.h5')
+data_path = os.path.join(BASE_DIR, '..', 'data', 'SymbolsDataset',
+                         'Symbols_same_0_r_0_45_t_0_0.8', 'train_dataset.h5')
 f = h5py.File(data_path, 'r')
 
 src = f['source'][:]
