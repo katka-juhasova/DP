@@ -1,10 +1,5 @@
-import os
-import sys
 import tensorflow as tf
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(BASE_DIR)
-sys.path.append(os.path.join(BASE_DIR, '..', 'corsnet'))
-import metrics
+from corsnet import metrics
 
 
 y_true = tf.Variable([[[1., 0., 0., 1.],
